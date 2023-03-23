@@ -4,35 +4,66 @@ import pyautogui
 import threading
 import time
 import datetime
+from pynput import mouse
+
+
+def on_click(x, y, button, pressed):
+    global mouse_x, mouse_y
+    if pressed:
+        mouse_x = x
+        mouse_y = y
+    else:
+        mouse_x = 0
+        mouse_y = 0
 
 
 def thread_function(video_fps):
-    global stop
+    global stop, out, mouse_x, mouse_y, imprime_mouse
     stop = False
     while True:
-        img = pyautogui.screenshot()
-        frame = np.array(img)
+        img_screen = pyautogui.screenshot()
+        x, y = pyautogui.position()
+        frame = np.array(img_screen)
         frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
+        if imprime_mouse:
+            if mouse_x == 0:
+                frame = cv.circle(frame, (x, y), 10, (0, 0, 255), -1)
+            else:
+                frame = cv.circle(frame, (x, y), 30, (0, 0, 255), -1)
         out.write(frame)
         time.sleep(1000/video_fps/1000)
         if stop:
+            time.sleep(2)
             break
+
+
+# MODIFICAR SI ES NECESARIO:
+fps = 15.0
+imprime_mouse = True
+# FIN MODIFICAR
 
 
 SCREEN_SIZE = tuple(pyautogui.size())
 fourcc = cv.VideoWriter_fourcc(*"XVID")
-fps = 15.0
-
 fecha_hora = datetime.datetime.today().strftime('%Y%m%d_%H%M%S')
-out = cv.VideoWriter(f'{fecha_hora}_output.avi', fourcc, fps, (SCREEN_SIZE))
-x = threading.Thread(target=thread_function, args=(fps,), daemon=True)
+out = cv.VideoWriter(f'{fecha_hora}_output.avi', fourcc, fps, SCREEN_SIZE)
+thread = threading.Thread(target=thread_function, args=(fps,), daemon=True)
 
-x.start()
+mouse_x = 0
+mouse_y = 0
+mouse_listener = mouse.Listener(
+    on_click=on_click)
+mouse_listener.start()
+
+thread.start()
 key = input('Presioná una tecla para frenar la grabación... ')
 stop = True
 
 if stop:
-    cv.destroyAllWindows()
+    print('Guardando archivo...')
+    time.sleep(1)
     out.release()
+    time.sleep(1)
+    cv.destroyAllWindows()
     img = pyautogui.screenshot(region=(0, 0, 300, 400))
     print('Grabación finalizada')
