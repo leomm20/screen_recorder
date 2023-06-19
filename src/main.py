@@ -1,4 +1,4 @@
-import cv2 as cv
+ import cv2 as cv
 import numpy as np
 import pyautogui
 import threading
@@ -56,7 +56,7 @@ mouse_listener = mouse.Listener(
 mouse_listener.start()
 
 thread.start()
-key = input('Presioná una tecla para frenar la grabación... ')
+key = input('Presioná Enter para frenar la grabación... ')
 stop = True
 
 if stop:
