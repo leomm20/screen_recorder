@@ -1,3 +1,5 @@
+import os
+
 import cv2 as cv
 import numpy as np
 import pyautogui
@@ -5,6 +7,7 @@ import threading
 import time
 import datetime
 from pynput import mouse
+from avi2mp4 import convert_avi2mp4
 
 
 def on_click(x, y, button, pressed):
@@ -46,7 +49,8 @@ imprime_mouse = True
 SCREEN_SIZE = tuple(pyautogui.size())
 fourcc = cv.VideoWriter_fourcc(*"XVID")
 fecha_hora = datetime.datetime.today().strftime('%Y%m%d_%H%M%S')
-out = cv.VideoWriter(f'{fecha_hora}_output.avi', fourcc, fps, SCREEN_SIZE)
+filename = f'{fecha_hora}_output.avi'
+out = cv.VideoWriter(filename, fourcc, fps, SCREEN_SIZE)
 thread = threading.Thread(target=thread_function, args=(fps,), daemon=True)
 
 mouse_x = 0
@@ -66,4 +70,5 @@ if stop:
     time.sleep(1)
     cv.destroyAllWindows()
     img = pyautogui.screenshot(region=(0, 0, 300, 400))
+    new_filename = convert_avi2mp4(filename)
     print('Grabación finalizada')
