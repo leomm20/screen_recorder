@@ -1,0 +1,7 @@
+opencv-python~=4.7.0.72
+PyAutoGUI~=0.9.53
+pydub~=0.25.1
+soundfile~=0.12.1
+pynput~=1.7.6
+moviepy~=1.0.3
+numpy~=1.24.1

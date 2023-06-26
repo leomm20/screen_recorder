@@ -1,14 +1,22 @@
 import os
+import sys
 import cv2 as cv
 import numpy as np
 import pyautogui
 import threading
 import time
 import datetime
-
 import pydub
 import soundfile as sf
 from pynput import mouse
+"""
+en windows, modificar, en mouse y en keyboard \__init__.py:
+# from pynput._util import backend, Events
+from pynput._util import Events
+from pynput.keyboard import _win32 as backend
+# backend = backend(__name__)
+KeyCode = backend.KeyCode
+"""
 from avi2mp4 import convert_avi2mp4
 from moviepy.editor import VideoFileClip, AudioFileClip
 
@@ -31,12 +39,14 @@ def on_click(x, y, button, pressed):
         mouse_y = 0
 
 
-def thread_function(video_fps):
-    global stop, out, mouse_x, mouse_y, imprime_mouse, stopped_video, filename, video
+def thread_function(video_fps, filename_):
+    global stop, mouse_x, mouse_y, imprime_mouse, stopped_video, video, fecha_hora
+    SCREEN_SIZE = tuple(pyautogui.size())
+    fourcc = cv.VideoWriter_fourcc(*"XVID")
+    out = cv.VideoWriter(filename_, fourcc, fps, SCREEN_SIZE)
     stop = False
     while True:
         start_time = time.time()
-
         img_screen = pyautogui.screenshot()
         x, y = pyautogui.position()
         frame = np.array(img_screen)
@@ -47,7 +57,6 @@ def thread_function(video_fps):
             else:
                 frame = cv.circle(frame, (x, y), 30, (0, 0, 255), -1)
         out.write(frame)
-
         elapsed_time = time.time() - start_time
         sleep_time = max(0, 1.0 / video_fps - elapsed_time)
         time.sleep(sleep_time)
@@ -61,8 +70,10 @@ def thread_function(video_fps):
     time.sleep(1)
     cv.destroyAllWindows()
     # img = pyautogui.screenshot(region=(0, 0, 300, 400))
-    video = convert_avi2mp4(filename)
-    os.remove(filename)
+    time.sleep(3)
+    video = convert_avi2mp4(filename_)
+    time.sleep(1)
+    os.remove(filename_)
     stopped_video = True
 
 
@@ -103,8 +114,8 @@ def grabar_audio():
     print('optimizando audio')
     time.sleep(2)
     seg = pydub.AudioSegment.from_wav(audio)
-    silencio = pydub.AudioSegment.silent(500)
-    seg = silencio + seg
+    # silencio = pydub.AudioSegment.silent(500)
+    # seg = silencio + seg
     seg.export(audio)
     time.sleep(2)
     os.remove(archivo)
@@ -120,27 +131,28 @@ stop = False
 stopped_video = False
 stopped_audio = False
 
-con_audio = input('Con audio? (s/n): ')
-while con_audio not in ('s', 'n', 'S', 'N'):
-    con_audio = input('Con audio? (s/n): ')
-if con_audio.lower() == 's':
+con_audio = input('Con audio? (s/n/[e para salir]): ')
+while con_audio not in ('s', 'n', 'S', 'N', 'e', 'E'):
+    con_audio = input('Con audio? (s/n/[e para salir]): ')
+if con_audio.lower() == 'e':
+    print('Bye!')
+    sys.exit()
+elif con_audio.lower() == 's':
     con_audio = True
 else:
     con_audio = False
 
-SCREEN_SIZE = tuple(pyautogui.size())
-fourcc = cv.VideoWriter_fourcc(*"XVID")
 fecha_hora = datetime.datetime.today().strftime('%Y%m%d_%H%M%S')
 filename = f'{fecha_hora}_output.avi'
-out = cv.VideoWriter(filename, fourcc, fps, SCREEN_SIZE)
-thread = threading.Thread(target=thread_function, args=(fps,), daemon=True)
-thread_audio = threading.Thread(target=grabar_audio, daemon=True)
 
 mouse_x = 0
 mouse_y = 0
 mouse_listener = mouse.Listener(
     on_click=on_click)
 mouse_listener.start()
+
+thread = threading.Thread(target=thread_function, args=(fps, filename,), daemon=True)
+thread_audio = threading.Thread(target=grabar_audio, daemon=True)
 
 video = ''
 audio = ''
@@ -149,7 +161,8 @@ final = filename[:-4] + '_.mp4'
 thread.start()
 if con_audio:
     thread_audio.start()
-key = input('Presioná Enter para frenar la grabación... ')
+key = input('Presioná Enter 2 veces para frenar la grabación...')
+print('Comenzando armado de archivo mp4')
 stop = True
 
 while not stopped_video:
@@ -163,5 +176,5 @@ if con_audio:
 merge_audio_video(video, audio, final)
 os.remove(video)
 os.remove(audio)
-print('PROCESO FINALIZADO!!')
+print('\nPROCESO FINALIZADO!!')
 os.system(final)

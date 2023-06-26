@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "C:\Python\Lib\threading.py", line 1038, in _bootstrap_inner
+    self.run()
+  File "C:\Python\Lib\threading.py", line 975, in run
+    self._target(*self._args, **self._kwargs)
+  File "main.py", line 72, in thread_function
+  File "C:\1Leo\1Programacion\python\screen_recorder\src\avi2mp4.py", line 5, in convert_avi2mp4
+    clip = moviepy.VideoFileClip(video)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python\Lib\site-packages\moviepy\video\io\VideoFileClip.py", line 88, in __init__
+    self.reader = FFMPEG_VideoReader(filename, pix_fmt=pix_fmt,
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python\Lib\site-packages\moviepy\video\io\ffmpeg_reader.py", line 35, in __init__
+    infos = ffmpeg_parse_infos(filename, print_infos, check_duration,
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python\Lib\site-packages\moviepy\video\io\ffmpeg_reader.py", line 289, in ffmpeg_parse_infos
+    raise IOError(("MoviePy error: failed to read the duration of file %s.\n"
+OSError: MoviePy error: failed to read the duration of file 20230622_184545_output.avi.
+Here are the file infos returned by ffmpeg:
