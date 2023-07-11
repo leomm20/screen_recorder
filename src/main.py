@@ -173,7 +173,7 @@ if con_audio:
     while not stopped_audio:
         time.sleep(1)
     print('Grabación de audio finalizada')
-merge_audio_video(video, audio, final)
+    merge_audio_video(video, audio, final)
 os.remove(video)
 os.remove(audio)
 print('\nPROCESO FINALIZADO!!')
