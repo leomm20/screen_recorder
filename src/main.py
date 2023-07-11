@@ -22,11 +22,13 @@ from moviepy.editor import VideoFileClip, AudioFileClip
 
 
 def merge_audio_video(video_file, audio_file, output_file):
+    print('Mezclando video y audio... ', end='')
     video = VideoFileClip(video_file)
     audio = AudioFileClip(audio_file)
 
     video = video.set_audio(audio)
     video.write_videofile(output_file, codec='libx264', audio_codec='aac')
+    print('Listo!')
 
 
 def on_click(x, y, button, pressed):
