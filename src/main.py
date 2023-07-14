@@ -154,7 +154,8 @@ mouse_listener = mouse.Listener(
 mouse_listener.start()
 
 thread = threading.Thread(target=thread_function, args=(fps, filename,), daemon=True)
-thread_audio = threading.Thread(target=grabar_audio, daemon=True)
+if con_audio:
+    thread_audio = threading.Thread(target=grabar_audio, daemon=True)
 
 video = ''
 audio = ''
@@ -176,7 +177,10 @@ if con_audio:
         time.sleep(1)
     print('Grabación de audio finalizada')
     merge_audio_video(video, audio, final)
-os.remove(video)
-os.remove(audio)
+    os.remove(audio)
+    os.remove(video)
+    os.system(final)
+else:
+    os.system(video)
+
 print('\nPROCESO FINALIZADO!!')
-os.system(final)
